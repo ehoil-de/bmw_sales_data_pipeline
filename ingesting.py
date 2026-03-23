@@ -18,4 +18,4 @@ df = pd.read_csv(DATA_DIR / "bmw_global_sales_2018_2025.csv")
 
 engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/bmw_sales_pipeline")
 
-df.to_sql("bmw_sales_raw", engine, if_exists="replace", index=False)
+df.to_sql("bmw_sales_raw", engine, if_exists="append", index=False)
