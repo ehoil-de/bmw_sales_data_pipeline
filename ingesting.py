@@ -12,7 +12,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "datas"
+DATA_DIR = BASE_DIR / "datas" / "new"
 
 df = pd.read_csv(DATA_DIR / "bmw_global_sales_2018_2025.csv")
 
