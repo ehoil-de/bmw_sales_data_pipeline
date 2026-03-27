@@ -1,8 +1,8 @@
-# Leaning Log
+# Learning Log
 
 ---
 
-## [2026-03-23] Data type broken when using `pandas.replace()`
+## [2026-03-23] Schema broken when using `to_sql(..., if_exists="replace")`
 
 ### Trigger
 

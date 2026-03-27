@@ -1,3 +1,5 @@
+Note: The DBML file focuses on table structure, while the PNG shows conceptual lineage relationships.
+
 Table bmw_sales_raw {
   year numeric(4) [not null, note: "CHECK year > 2000 AND year < 3000"]
   month numeric(2) [not null, note: "CHECK month > 0 AND month < 13"]
@@ -77,16 +79,3 @@ Table sales_fuel_index_feature {
 
   Note: "Layer: Feature | Derived from: bmw_sales_raw"
 }
-
-Ref: monthly_region_sales.year > bmw_sales_raw.year
-Ref: monthly_region_sales.month > bmw_sales_raw.month
-Ref: monthly_region_sales.region > bmw_sales_raw.region
-
-Ref: monthly_model_sales.year > bmw_sales_raw.year
-Ref: monthly_model_sales.month > bmw_sales_raw.month
-Ref: monthly_model_sales.model > bmw_sales_raw.model
-
-Ref: sales_gdp_feature.region > bmw_sales_raw.region
-Ref: sales_gdp_feature.gdp_growth > bmw_sales_raw.gdp_growth
-
-Ref: sales_fuel_index_feature.region > bmw_sales_raw.region
