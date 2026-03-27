@@ -4,8 +4,8 @@ CREATE TABLE sales_fuel_index_feature AS
 SELECT
     region,
     fuel_price_index_low,
-    ROUND(SUM(units_sold * premium_share) / NULLIF(SUM(units_sold),0), 2) AS total_premium_share,
-    ROUND(SUM(units_sold * bev_share) / NULLIF(SUM(units_sold),0), 3) AS total_bev_share,
+    ROUND((SUM(units_sold * premium_share) / NULLIF(SUM(units_sold),0))::NUMERIC, 2) AS total_premium_share,
+    ROUND((SUM(units_sold * bev_share) / NULLIF(SUM(units_sold),0))::NUMERIC, 3) AS total_bev_share,
     SUM(units_sold) AS total_units_sold,
     SUM(revenue_eur) AS total_revenue_eur
 FROM (
