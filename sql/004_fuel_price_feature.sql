@@ -21,4 +21,4 @@ FROM (
 GROUP BY region, fuel_price_index_low
 ORDER BY region, fuel_price_index_low;
 
-ALTER TABLE monthly_region_sales ADD CONSTRAINT add_pk PRIMARY KEY (region, fuel_price_index_low);
+ALTER TABLE sales_fuel_index_feature ADD CONSTRAINT mfif_pk PRIMARY KEY (region, fuel_price_index_low);

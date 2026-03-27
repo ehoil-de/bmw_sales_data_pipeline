@@ -238,7 +238,7 @@ The current data model follows a one-directional transformation flow:
 The following rules define the expected data quality standard for the model.
 These checks are centered on the current raw table, clean table, and downstream derived tables.
 
-- No duplicate rows at raw grain `(year, month, region, model)`
+- The clean layer is expected to preserve one row per `(year, month, region, model)` after filtering
 - `units_sold >= 0`
 - `revenue_eur >= 0`
 - `bev_share BETWEEN 0 AND 1`

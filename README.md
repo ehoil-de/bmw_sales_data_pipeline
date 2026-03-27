@@ -22,7 +22,7 @@ The current version of the project emphasizes:
 
 - Extracted data from CSV using Python
 - Loaded data into a relational database
-- Designed a raw data table with constraints to ensure data quality
+- Designed a raw data table to preserve source data before cleaning
 - Added a clean table between raw ingestion and downstream analytical tables
 - Built SQL-based aggregation and feature tables for downstream analysis
 - Added a pipeline entry point to run ingestion and transformations in sequence

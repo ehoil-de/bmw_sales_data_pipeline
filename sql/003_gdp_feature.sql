@@ -12,4 +12,4 @@ FROM bmw_sales_clean
 GROUP BY region, gdp_growth
 ORDER BY region, gdp_growth;
 
-ALTER TABLE monthly_region_sales ADD CONSTRAINT add_pk PRIMARY KEY (region, gdp_growth);
+ALTER TABLE sales_gdp_feature ADD CONSTRAINT sgf_pk PRIMARY KEY (region, gdp_growth);
