@@ -6,7 +6,7 @@
 - Aggregation and feature tables are derived directly from the raw table
 - Grain is explicitly defined per table
 - The model is organized for analytics
-- \***\*Lineage\*\*** is preferred over heavy FK usage in derived tables
+- Lineage is preferred over heavy FK usage in derived tables
 
 > For full physical schema (columns, data types, constraints), refer to the ERD diagram created with dbdiagram.
 
