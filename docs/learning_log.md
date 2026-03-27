@@ -138,4 +138,8 @@ This incident highlighted an important principle in data engineering:
 - If constraints are too strong at the raw stage, source data can be lost before it is properly analyzed
 - A better structure is to ingest first, then stage/clean, and then build meaningful downstream tables
 
+### Improvement Point
+
+- To preserve source data in the raw table, I removed the earlier first-line defenses using `drop_duplicates()` and `pandas.merge()`, which means a different duplicate-handling strategy will be needed later.
+
 ---
