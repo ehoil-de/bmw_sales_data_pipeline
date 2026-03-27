@@ -30,22 +30,6 @@ def ingest_csv_to_raw() -> None:
         
         df = pd.read_csv(file_path)
         
-        df = df.drop_duplicates(subset=["year", "month", "region", "model"])
-        
-        existing = pd.read_sql("""
-        SELECT year, month, region, model
-        FROM bmw_sales_raw    
-        """, engine)
-        
-        df = df.merge(
-            existing,
-            on=["year", "month", "region", "model"],
-            how="left",
-            indicator=True
-        )
-        
-        df = df[df["_merge"] == "left_only"].drop(columns=["_merge"])
-        
         print(f"Loading {file_path.name} into bmw_sales_raw...")
         df.to_sql("bmw_sales_raw", engine, if_exists="append", index=False)
     

@@ -3,7 +3,7 @@
 ## TL;DR
 
 - Current implementation is centered on the raw layer
-- Aggregation and feature tables are derived directly from the raw table
+- A clean layer now sits between raw data and derived tables
 - Grain is explicitly defined per table
 - The model is organized for analytics
 - Lineage is preferred over heavy FK usage in derived tables
@@ -14,7 +14,7 @@
 
 This project models monthly BMW sales data to support analytical and forecasting use cases.
 
-At the current stage of the project, the pipeline is built around a raw ingestion table and several derived analytical tables.
+At the current stage of the project, the pipeline is built around a raw ingestion table, a clean table, and several derived analytical tables.
 The model documented here reflects the current structure of the project.
 
 The data model is used to:
@@ -25,7 +25,7 @@ The data model is used to:
 
 The current pipeline follows this layered architecture:
 
-> Raw Layer → Aggregation Layer → Feature Layer
+> Raw Layer → Clean Layer → Aggregation Layer / Feature Layer
 
 ## Design Principles
 
@@ -67,11 +67,38 @@ The data model is built around the following principles:
 
 - Source-aligned structure
 - Includes both business metrics and external indicators
-- Used as the single source of truth for all downstream transformations
+- Used as the source table for the clean layer
+
+### Clean Layer
+
+`bmw_sales_clean`
+
+**Purpose**
+
+- Stores filtered and cleaned sales data before downstream aggregation and feature creation
+- Serves as the current transformation boundary between raw ingestion and derived tables
+
+**Grain**
+
+- One row per `(year, month, region, model)`
+
+**Derived From**
+
+- `bmw_sales_raw`
+
+**Current Cleaning Logic**
+
+- Preserves the raw table structure for downstream use
+- Filters rows based on current quality conditions before downstream table creation
+
+**Characteristics**
+
+- Keeps the same business grain as the raw table
+- Acts as the base table for current aggregation and feature queries
 
 ### Aggregation Layer
 
-The tables below are derived directly from `bmw_sales_raw`.
+The tables below are derived from `bmw_sales_clean`.
 
 **`monthly_region_sales`**
 
@@ -85,7 +112,7 @@ The tables below are derived directly from `bmw_sales_raw`.
 
 **Derived From**
 
-- `bmw_sales_raw`
+- `bmw_sales_clean`
 
 **Transformation Logic**
 
@@ -110,7 +137,7 @@ The tables below are derived directly from `bmw_sales_raw`.
 
 **Derived From**
 
-- `bmw_sales_raw`
+- `bmw_sales_clean`
 
 **Transformation Logic**
 
@@ -124,7 +151,7 @@ The tables below are derived directly from `bmw_sales_raw`.
 
 ### Feature Layer
 
-The feature tables below are analytical outputs derived directly from `bmw_sales_raw` at the current stage of the project.
+The feature tables below are analytical outputs derived from `bmw_sales_clean` at the current stage of the project.
 
 **`sales_gdp_feature`**
 
@@ -138,7 +165,7 @@ The feature tables below are analytical outputs derived directly from `bmw_sales
 
 **Derived From**
 
-- `bmw_sales_raw`
+- `bmw_sales_clean`
 
 **Example Features**
 
@@ -164,7 +191,7 @@ The feature tables below are analytical outputs derived directly from `bmw_sales
 
 **Derived From**
 
-- `bmw_sales_raw`
+- `bmw_sales_clean`
 
 **Example Features**
 
@@ -184,20 +211,23 @@ The current data model follows a one-directional transformation flow:
 
 > bmw_sales_raw
 > ↓
+> bmw_sales_clean
+> ↓
 > monthly_region_sales
 > monthly_model_sales
 > sales_gdp_feature
 > sales_fuel_index_feature
 
 - `bmw_sales_raw` is the current implemented source table
-- All derived tables originate from `bmw_sales_raw`
-- Aggregation and feature tables are currently derived directly from the raw table
+- `bmw_sales_clean` is the current intermediate transformation table
+- Aggregation and feature tables are currently derived from the clean table
 
 ## Grain Summary
 
 | table                    | grain                          |
 | ------------------------ | ------------------------------ |
 | bmw_sales_raw            | (year, month, region, model)   |
+| bmw_sales_clean          | (year, month, region, model)   |
 | monthly_region_sales     | (year, month, region)          |
 | monthly_model_sales      | (year, month, model)           |
 | sales_gdp_feature        | (region, gdp_growth)           |
@@ -206,7 +236,7 @@ The current data model follows a one-directional transformation flow:
 ## Data Quality Checks
 
 The following rules define the expected data quality standard for the model.
-These checks are centered on the current raw table and its downstream derived tables.
+These checks are centered on the current raw table, clean table, and downstream derived tables.
 
 - No duplicate rows at raw grain `(year, month, region, model)`
 - `units_sold >= 0`
@@ -227,6 +257,12 @@ Additional validation:
 
 - Relationships are defined via shared grain and lineage
 - Avoids unnecessary constraints in analytical workloads
+
+### Clean Layer Introduction
+
+- A separate clean table is used before aggregation and feature generation
+- This creates a clearer transformation boundary between ingestion and downstream analysis
+- The current clean table also acts as the main filtering layer for downstream data quality
 
 ### Separation of Feature Layer
 

@@ -1,17 +1,17 @@
 Note: The DBML file focuses on table structure, while the PNG shows conceptual lineage relationships.
 
 Table bmw_sales_raw {
-  year numeric(4) [not null, note: "CHECK year > 2000 AND year < 3000"]
-  month numeric(2) [not null, note: "CHECK month > 0 AND month < 13"]
-  region varchar(20) [not null]
-  model varchar(20) [not null]
-  units_sold int [not null, note: "CHECK units_sold >= 0"]
-  avg_price_eur int [not null, note: "CHECK avg_price_eur >= 0"]
-  revenue_eur int [not null, note: "CHECK revenue_eur >= 0"]
-  bev_share numeric(4,3) [not null, note: "CHECK bev_share >= 0 AND bev_share <= 1"]
-  premium_share numeric(6,3) [not null, note: "CHECK premium_share >= 0 AND premium_share <= 100"]
-  gdp_growth numeric(5,3) [not null]
-  fuel_price_index numeric(5,3) [not null, note: "CHECK fuel_price_index >= 0"]
+  year smallint
+  month smallint
+  region text
+  model text
+  units_sold bigint
+  avg_price_eur bigint
+  revenue_eur bigint
+  bev_share double
+  premium_share double
+  gdp_growth double
+  fuel_price_index double
 
   indexes {
     (year, month, region, model) [pk]
@@ -20,11 +20,31 @@ Table bmw_sales_raw {
   Note: "Layer: Raw"
 }
 
+Table bmw_sales_clean {
+  year smallint
+  month smallint
+  region text
+  model text
+  units_sold bigint
+  avg_price_eur bigint
+  revenue_eur bigint
+  bev_share double
+  premium_share double
+  gdp_growth double
+  fuel_price_index double
+
+  indexes {
+    (year, month, region, model) [pk]
+  }
+
+  Note: "Layer: Clean | Derived from: bmw_sales_raw"
+}
+
 Table monthly_region_sales {
-  year numeric(4) [not null]
-  month numeric(2) [not null]
-  region varchar(20) [not null]
-  total_units_sold int [not null]
+  year smallint [not null]
+  month smallint [not null]
+  region text [not null]
+  total_units_sold bigint [not null]
   total_avg_price_eur numeric(12,2) [not null]
   total_revenue_eur bigint [not null]
 
@@ -32,14 +52,14 @@ Table monthly_region_sales {
     (year, month, region) [pk]
   }
 
-  Note: "Layer: Aggregation | Derived from: bmw_sales_raw"
+  Note: "Layer: Aggregation | Derived from: bmw_sales_clean"
 }
 
 Table monthly_model_sales {
-  year numeric(4) [not null]
-  month numeric(2) [not null]
-  model varchar(20) [not null]
-  total_units_sold int [not null]
+  year smallint [not null]
+  month smallint [not null]
+  model text [not null]
+  total_units_sold bigint [not null]
   total_avg_price_eur numeric(12,2) [not null]
   total_revenue_eur bigint [not null]
 
@@ -47,35 +67,35 @@ Table monthly_model_sales {
     (year, month, model) [pk]
   }
 
-  Note: "Layer: Aggregation | Derived from: bmw_sales_raw"
+  Note: "Layer: Aggregation | Derived from: bmw_sales_clean"
 }
 
 Table sales_gdp_feature {
-  region varchar(20) [not null]
-  gdp_growth numeric(5,3) [not null]
+  region text [not null]
+  gdp_growth double [not null]
   total_premium_share numeric(6,2) [not null]
   total_bev_share numeric(6,3) [not null]
-  total_units_sold int [not null]
+  total_units_sold bigint [not null]
   total_revenue_eur bigint [not null]
 
   indexes {
     (region, gdp_growth) [pk]
   }
 
-  Note: "Layer: Feature | Derived from: bmw_sales_raw"
+  Note: "Layer: Feature | Derived from: bmw_sales_clean"
 }
 
 Table sales_fuel_index_feature {
-  region varchar(20) [not null]
+  region text [not null]
   fuel_price_index_low numeric(4,1) [not null]
   total_premium_share numeric(6,2) [not null]
   total_bev_share numeric(6,3) [not null]
-  total_units_sold int [not null]
+  total_units_sold bigint [not null]
   total_revenue_eur bigint [not null]
 
   indexes {
     (region, fuel_price_index_low) [pk]
   }
 
-  Note: "Layer: Feature | Derived from: bmw_sales_raw"
+  Note: "Layer: Feature | Derived from: bmw_sales_clean"
 }

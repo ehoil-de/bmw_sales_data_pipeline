@@ -8,8 +8,8 @@ It focuses on how raw CSV data can be ingested, validated, and transformed into 
 The current version of the project emphasizes:
 
 - raw data ingestion with Python and Pandas
+- a separate clean table for filtering and preprocessing
 - loading data into PostgreSQL
-- basic duplicate prevention before insert
 - SQL-based transformation into aggregation and feature tables
 - documentation of grain, lineage, and table structure
 
@@ -21,10 +21,9 @@ The current version of the project emphasizes:
 ## What I Built
 
 - Extracted data from CSV using Python
-- Removed duplicate rows from source CSV files before loading
-- Compared incoming rows with existing raw-table records to prevent repeated inserts
 - Loaded data into a relational database
 - Designed a raw data table with constraints to ensure data quality
+- Added a clean table between raw ingestion and downstream analytical tables
 - Built SQL-based aggregation and feature tables for downstream analysis
 - Added a pipeline entry point to run ingestion and transformations in sequence
 - Documented the current data model and ERD
@@ -35,9 +34,8 @@ The current version of the project emphasizes:
 
 > bmw_global_sales_2018_2025.csv
 > -> Extract (Python / Pandas)
-> -> Remove source-level duplicates with `drop_duplicates()`
-> -> Compare with existing raw-table records using `pandas.merge()`
 > -> Load (PostgreSQL)
+> -> Clean (`bmw_sales_clean`)
 > -> Transform (SQL)
 > -> `monthly_region_sales`
 > -> `monthly_model_sales`
@@ -50,7 +48,7 @@ The current version of the project emphasizes:
 
 I designed a **bmw_sales_raw** table with constraints to maintain data integrity.
 
-I also created downstream analytical tables for aggregation and feature use cases.
+I also created a **bmw_sales_clean** table and downstream analytical tables for aggregation and feature use cases.
 
 Key design decisions:
 
@@ -66,18 +64,19 @@ Key design decisions:
 
 - Keeps each derived table aligned to a clear analytical purpose
 
-**Duplicate prevention before insert**
+**Clean-layer preprocessing**
 
-- Source-level duplicates are removed before loading
-- Incoming rows are compared against existing raw-table records before insertion
+- A separate clean table is used before aggregation and feature generation
+- The current clean step filters rows based on data quality conditions before downstream transformations
 
 ---
 
 ## Project Structure
 
 - `run_pipeline.py`: runs raw ingestion and SQL transformations
-- `scripts/ingesting.py`: removes duplicate rows from source CSV files, checks against existing raw-table records, and loads new rows into `bmw_sales_raw`
-- `sql/`: contains SQL files that create aggregation and feature tables
+- `scripts/ingesting.py`: loads CSV files from `datas/new` into `bmw_sales_raw`
+- `sql/000_clean.sql`: creates `bmw_sales_clean` from `bmw_sales_raw`
+- `sql/`: contains SQL files that create clean, aggregation, and feature tables
 - `docs/data_model.md`: documents the current table structure, grain, and lineage
 - `docs/ERD/ERD.dbml`: source ERD definition
 - `docs/ERD/ERD.png`: rendered ERD image
@@ -87,22 +86,21 @@ Key design decisions:
 ## Key Learnings
 
 - Why `to_sql(..., if_exists="replace")` can break an existing schema
-- Why duplicate prevention needs an earlier defensive layer before database constraints
+- Why raw tables should preserve source data before cleaning
 - Why table grain should be defined explicitly when designing derived tables
 
 ---
 
 ## Limitations
 
-- The current pipeline still depends on direct raw-to-derived transformations
-- Duplicate prevention is handled in the ingestion logic, not through a more robust incremental load design
+- The current clean layer is still a simple SQL-based filtering step and does not yet represent a full staging design
 - Feature tables are still closer to analytical summaries than fully developed ML feature sets
 
 ---
 
 ## Future Improvements
 
-- Add a clean/staging layer between raw and derived tables
+- Expand the clean layer into a more robust staging design
 - Improve feature tables so they better match real feature engineering use cases
 - Strengthen the pipeline structure with more robust validation and execution handling
 

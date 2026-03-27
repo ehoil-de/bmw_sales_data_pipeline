@@ -94,3 +94,48 @@ This incident highlighted an important principle in data engineering:
 - A stable pipeline needs an earlier preventive layer, such as `drop_duplicates()` for source-level duplicates and `pandas.merge()` for database-level duplicate checks
 
 ---
+
+## [2026-03-27] Raw tables should preserve source data before cleaning
+
+### Trigger
+
+While loading data into the raw table with the existing duplicate-prevention logic, I noticed something unexpected.
+The total number of rows in the source CSV file did not match the number of rows stored in the database.
+
+At first, this seemed acceptable because some preprocessing had already been applied.
+But after thinking about it more carefully, I realized that I could not always know in advance which rows might become useful later.
+That made me feel that I needed a more reliable way to preserve the original source data first.
+
+### Problem
+
+The raw table was no longer acting as a true source-preserving layer.
+Because too much filtering or restriction happened before or during raw loading, some original data could be lost before I had a chance to examine or clean it properly.
+
+### Root Cause
+
+The root cause was that the raw table had become too restrictive.
+By applying strong constraints and early filtering at the raw stage, I was making data-quality decisions too soon.
+
+This created a risk that source data would be removed before the cleaning step, even though some of that data might still be useful later for validation, auditing, or redesigning transformation logic.
+
+### Fix
+
+I changed the pipeline structure so that the raw table can accept as much source data as possible.
+Instead of relying on the raw table to enforce strict filtering, I moved the cleaning responsibility to a separate clean table.
+
+The updated idea is:
+
+- load source data into `bmw_sales_raw` as completely as possible
+- create `bmw_sales_clean` as a separate cleaning/staging step
+- use the clean table as the base for downstream aggregation and feature tables
+
+### Insight
+
+This incident highlighted an important principle in data engineering:
+
+- A raw table should preserve source data as much as possible
+- Cleaning and business-rule decisions should happen after ingestion, not too early during loading
+- If constraints are too strong at the raw stage, source data can be lost before it is properly analyzed
+- A better structure is to ingest first, then stage/clean, and then build meaningful downstream tables
+
+---
