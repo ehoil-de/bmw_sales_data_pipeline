@@ -13,10 +13,6 @@ Table bmw_sales_raw {
   gdp_growth double
   fuel_price_index double
 
-  indexes {
-    (year, month, region, model) [pk]
-  }
-
   Note: "Layer: Raw"
 }
 

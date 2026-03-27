@@ -11,3 +11,5 @@ SELECT
 FROM bmw_sales_clean
 GROUP BY year, month, region
 ORDER BY region, year, month;
+
+ALTER TABLE monthly_region_sales ADD CONSTRAINT add_pk PRIMARY KEY (year, month, region);

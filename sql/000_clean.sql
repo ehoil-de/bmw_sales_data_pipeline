@@ -15,3 +15,5 @@ WHERE
     AND bev_share>=0
     AND premium_share>=0
     AND fuel_price_index>=0;
+
+ALTER TABLE monthly_region_sales ADD CONSTRAINT add_pk PRIMARY KEY (year, month, region, model);
