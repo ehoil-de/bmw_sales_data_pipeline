@@ -2,12 +2,19 @@
 
 ## Project Overview
 
-This project aims to build a basic data pipeline using BMW global sales data to understand how raw data can be ingested, structured, and stored for further analysis.
+This project is a beginner data engineering pipeline built with BMW global sales data.
+It focuses on how raw CSV data can be ingested, validated, and transformed into structured analytical tables.
 
-The pipeline focuses on transforming raw CSV data into a structured database format while ensuring data integrity and preventing duplication.
+The current version of the project emphasizes:
+
+- raw data ingestion with Python and Pandas
+- loading data into PostgreSQL
+- basic duplicate prevention before insert
+- SQL-based transformation into aggregation and feature tables
+- documentation of grain, lineage, and table structure
 
 **This project is currently in progress.**
-**The current implementation includes raw ingestion and SQL-based transformation tables.**
+**The current implementation includes a runnable ingestion-to-transform pipeline and supporting documentation.**
 
 ---
 
@@ -15,6 +22,7 @@ The pipeline focuses on transforming raw CSV data into a structured database for
 
 - Extracted data from CSV using Python
 - Removed duplicate rows from source CSV files before loading
+- Compared incoming rows with existing raw-table records to prevent repeated inserts
 - Loaded data into a relational database
 - Designed a raw data table with constraints to ensure data quality
 - Built SQL-based aggregation and feature tables for downstream analysis
@@ -27,7 +35,8 @@ The pipeline focuses on transforming raw CSV data into a structured database for
 
 > bmw_global_sales_2018_2025.csv
 > -> Extract (Python / Pandas)
-> -> Remove source-level duplicates
+> -> Remove source-level duplicates with `drop_duplicates()`
+> -> Compare with existing raw-table records using `pandas.merge()`
 > -> Load (PostgreSQL)
 > -> Transform (SQL)
 > -> `monthly_region_sales`
@@ -57,12 +66,17 @@ Key design decisions:
 
 - Keeps each derived table aligned to a clear analytical purpose
 
+**Duplicate prevention before insert**
+
+- Source-level duplicates are removed before loading
+- Incoming rows are compared against existing raw-table records before insertion
+
 ---
 
 ## Project Structure
 
 - `run_pipeline.py`: runs raw ingestion and SQL transformations
-- `scripts/ingesting.py`: removes duplicate rows from source CSV files and loads data into `bmw_sales_raw`
+- `scripts/ingesting.py`: removes duplicate rows from source CSV files, checks against existing raw-table records, and loads new rows into `bmw_sales_raw`
 - `sql/`: contains SQL files that create aggregation and feature tables
 - `docs/data_model.md`: documents the current table structure, grain, and lineage
 - `docs/ERD/ERD.dbml`: source ERD definition
@@ -72,18 +86,24 @@ Key design decisions:
 
 ## Key Learnings
 
-**(To be updated after project completion)**
+- Why `to_sql(..., if_exists="replace")` can break an existing schema
+- Why duplicate prevention needs an earlier defensive layer before database constraints
+- Why table grain should be defined explicitly when designing derived tables
 
 ---
 
 ## Limitations
 
-**(To be updated after project completion)**
+- The current pipeline still depends on direct raw-to-derived transformations
+- Duplicate prevention is handled in the ingestion logic, not through a more robust incremental load design
+- Feature tables are still closer to analytical summaries than fully developed ML feature sets
 
 ---
 
 ## Future Improvements
 
-**(To be updated after project completion)**
+- Add a clean/staging layer between raw and derived tables
+- Improve feature tables so they better match real feature engineering use cases
+- Strengthen the pipeline structure with more robust validation and execution handling
 
 ---

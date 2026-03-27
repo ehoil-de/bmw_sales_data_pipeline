@@ -55,3 +55,42 @@ This incident highlights an important principle in data engineering:
   --Accidentally dropping it can lead to critical failures
 
 ---
+
+## [2026-03-27] Duplicate rows kept accumulating during repeated pipeline runs
+
+### Trigger
+
+While testing the pipeline, I ran it multiple times to check whether the flow worked correctly end to end.
+
+### Problem
+
+After checking the database, I found that the same data had been loaded repeatedly.
+The more times I ran the pipeline, the more duplicated rows accumulated in the table.
+
+### Root Cause
+
+At first, I tried to block duplicates using a primary key.
+However, this caused the pipeline to fail during execution whenever duplicate rows appeared.
+
+The reason was that primary keys and constraints do not silently skip duplicate rows.
+When duplicate data reaches the insert step, the database rejects the conflicting rows and the execution stops with an error.
+
+### Fix
+
+I added two defensive steps before loading data:
+
+- First, use `drop_duplicates()` to remove duplicate rows inside the source CSV data itself
+- Second, use `pandas.merge()` to compare incoming data with existing database records and filter out rows that already exist
+
+This created a two-layer defense before insertion.
+
+### Insight
+
+This incident highlighted an important principle in data engineering:
+
+- Removing duplicate data before insertion is important for pipeline stability
+- Primary keys and constraints are important, but they act as a final line of defense
+- If duplicate rows reach the database insert step, the execution itself can fail
+- A stable pipeline needs an earlier preventive layer, such as `drop_duplicates()` for source-level duplicates and `pandas.merge()` for database-level duplicate checks
+
+---
