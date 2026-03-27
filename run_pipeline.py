@@ -30,6 +30,7 @@ def main() -> None:
     ingest_csv_to_raw()
     
     sql_files = [
+        BASE_DIR / "sql" / "000_clean.sql",
         BASE_DIR / "sql" / "001_monthly_region.sql",
         BASE_DIR / "sql" / "002_monthly_model.sql",
         BASE_DIR / "sql" / "003_gdp_feature.sql",

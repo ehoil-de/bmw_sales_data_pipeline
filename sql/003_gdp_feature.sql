@@ -8,6 +8,6 @@ SELECT
     ROUND((SUM(units_sold*bev_share) / NULLIF(SUM(units_sold), 0))::NUMERIC,3) AS total_bev_share,
     SUM(units_sold) AS total_units_sold,
     SUM(revenue_eur) AS total_revenue_eur
-FROM bmw_sales_raw
+FROM bmw_sales_clean
 GROUP BY region, gdp_growth
 ORDER BY region, gdp_growth;

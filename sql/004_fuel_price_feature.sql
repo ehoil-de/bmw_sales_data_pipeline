@@ -16,7 +16,7 @@ FROM (
         bev_share,
         revenue_eur,
         ROUND(fuel_price_index::NUMERIC(4,3), 1) AS fuel_price_index_low
-    FROM bmw_sales_raw
+    FROM bmw_sales_clean
 ) bsc
 GROUP BY region, fuel_price_index_low
 ORDER BY region, fuel_price_index_low;
