@@ -46,7 +46,7 @@ The current version of the project emphasizes:
 
 ## Current Database Design
 
-I designed a **bmw_sales_raw** table with constraints to maintain data integrity.
+I designed a **bmw_sales_raw** table to preserve source data before cleaning.
 
 I also created a **bmw_sales_clean** table and downstream analytical tables for aggregation and feature use cases.
 
