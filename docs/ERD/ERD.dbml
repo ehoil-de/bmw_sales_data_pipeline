@@ -1,4 +1,4 @@
-Note: The DBML file focuses on table structure, while the PNG shows conceptual lineage relationships.
+Note PS {"The DBML file focuses on table structure, while the PNG shows conceptual lineage relationships."}
 
 Table bmw_sales_raw {
   year smallint

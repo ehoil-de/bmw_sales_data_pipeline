@@ -4,3 +4,6 @@
 # 가상환경
 venv/
 .envrc
+
+# pycache
+__pycache__/
