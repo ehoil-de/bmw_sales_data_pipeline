@@ -14,6 +14,7 @@ The pipeline focuses on transforming raw CSV data into a structured database for
 ## What I Built
 
 - Extracted data from CSV using Python
+- Removed duplicate rows from source CSV files before loading
 - Loaded data into a relational database
 - Designed a raw data table with constraints to ensure data quality
 - Built SQL-based aggregation and feature tables for downstream analysis
@@ -26,6 +27,7 @@ The pipeline focuses on transforming raw CSV data into a structured database for
 
 > bmw_global_sales_2018_2025.csv
 > -> Extract (Python / Pandas)
+> -> Remove source-level duplicates
 > -> Load (PostgreSQL)
 > -> Transform (SQL)
 > -> `monthly_region_sales`
@@ -60,7 +62,7 @@ Key design decisions:
 ## Project Structure
 
 - `run_pipeline.py`: runs raw ingestion and SQL transformations
-- `scripts/ingesting.py`: loads CSV files from `datas/new` into `bmw_sales_raw`
+- `scripts/ingesting.py`: removes duplicate rows from source CSV files and loads data into `bmw_sales_raw`
 - `sql/`: contains SQL files that create aggregation and feature tables
 - `docs/data_model.md`: documents the current table structure, grain, and lineage
 - `docs/ERD/ERD.dbml`: source ERD definition

@@ -30,6 +30,8 @@ def ingest_csv_to_raw() -> None:
         
         df = pd.read_csv(file_path)
         
+        df = df.drop_duplicates(subset=["year", "month", "region", "model"])
+        
         print(f"Loading {file_path.name} into bmw_sales_raw...")
         df.to_sql("bmw_sales_raw", engine, if_exists="append", index=False)
     
