@@ -8,7 +8,9 @@
 - The model is organized for analytics
 - Lineage is preferred over heavy FK usage in derived tables
 
-> For full physical schema (columns, data types, constraints), refer to the ERD diagram created with dbdiagram.
+> **For full physical schema (columns, data types, constraints), refer to the ERD diagram created with dbdiagram.**
+
+---
 
 ## Overview
 
@@ -26,6 +28,8 @@ The data model is used to:
 The current pipeline follows this layered architecture:
 
 > Raw Layer → Clean Layer → Aggregation Layer / Feature Layer
+
+---
 
 ## Design Principles
 
@@ -48,9 +52,11 @@ The data model is built around the following principles:
 - Feature tables are separated from reporting marts
 - This supports exploratory analytical use cases with external indicators
 
+---
+
 ## Data Layers
 
-### Raw Layer
+### _Raw Layer_
 
 `bmw_sales_raw`
 
@@ -69,7 +75,7 @@ The data model is built around the following principles:
 - Includes both business metrics and external indicators
 - Used as the source table for the clean layer
 
-### Clean Layer
+### _Clean Layer_
 
 `bmw_sales_clean`
 
@@ -96,7 +102,7 @@ The data model is built around the following principles:
 - Keeps the same business grain as the raw table
 - Acts as the base table for current aggregation and feature queries
 
-### Aggregation Layer
+### _Aggregation Layer_
 
 The tables below are derived from `bmw_sales_clean`.
 
@@ -205,6 +211,8 @@ The feature tables below are analytical outputs derived from `bmw_sales_clean` a
 - Fuel prices affect consumer preference for EV vs ICE vehicles
 - Grouping sales metrics by fuel price level supports exploratory elasticity analysis
 
+---
+
 ## Data Lineage
 
 The current data model follows a one-directional transformation flow:
@@ -222,6 +230,8 @@ The current data model follows a one-directional transformation flow:
 - `bmw_sales_clean` is the current intermediate transformation table
 - Aggregation and feature tables are currently derived from the clean table
 
+---
+
 ## Grain Summary
 
 | table                    | grain                          |
@@ -232,6 +242,8 @@ The current data model follows a one-directional transformation flow:
 | monthly_model_sales      | (year, month, model)           |
 | sales_gdp_feature        | (region, gdp_growth)           |
 | sales_fuel_index_feature | (region, fuel_price_index_low) |
+
+---
 
 ## Data Quality Checks
 
@@ -250,6 +262,8 @@ Additional validation:
 
 - `revenue_eur ≈ units_sold * avg_price_eur` (tolerance allowed)
 - Null values are not permitted in key dimensions
+
+---
 
 ## Design Decisions & Trade-offs
 
