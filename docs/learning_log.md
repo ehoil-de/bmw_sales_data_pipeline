@@ -143,3 +143,46 @@ This incident highlighted an important principle in data engineering:
 - To preserve source data in the raw table, I removed the earlier first-line defenses using `drop_duplicates()` and `pandas.merge()`, which means a different duplicate-handling strategy will be needed later.
 
 ---
+
+## [2026-04-01] Clean tables should not remove too much usable data
+
+### Trigger
+
+While reviewing the tables in the database to rethink the duplicate-handling strategy, I noticed that a large amount of data was still disappearing during the cleaning step.
+
+### Problem
+
+The existing `WHERE`-based cleaning logic removed too many rows.
+Even after moving filtering from the raw table to the clean table, the result still felt too similar to the earlier approach where too much source data was lost.
+
+### Root Cause
+
+The root cause was that I was still treating the clean table mainly as a filtering layer.
+This meant that rows containing imperfect values were often removed entirely, even when some of their columns could still be usable for downstream analysis.
+
+### Fix
+
+I changed the clean-table logic so that it does not depend only on strict `WHERE` filtering.
+Instead, if a row still contains enough usable information, invalid values are converted to `NULL` with `CASE WHEN` rather than removing the whole row.
+
+The updated idea is:
+
+- keep strict `WHERE` conditions only for values that are truly required
+- preserve as many rows as possible in the clean table
+- use `CASE WHEN` to replace invalid values with `NULL`
+- allow downstream tables to use partially cleaned but still meaningful data
+
+### Insight
+
+This incident highlighted an important principle in data engineering:
+
+- A clean table is not just a table that removes bad rows
+- If data is still usable, it can be better to preserve the row and handle invalid values at the column level
+- Over-filtering can create unnecessary data loss
+- A better clean layer tries to balance data quality and data preservation
+
+### Improvement Point
+
+- I still have not found a satisfying duplicate-handling strategy, so this part of the pipeline needs more work.
+
+---

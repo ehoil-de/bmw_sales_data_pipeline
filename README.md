@@ -67,7 +67,7 @@ Key design decisions:
 **Clean-layer preprocessing**
 
 - A separate clean table is used before aggregation and feature generation
-- The current clean step filters rows based on data quality conditions before downstream transformations
+- The current clean step filters rows and applies basic value handling before downstream transformations
 
 ---
 

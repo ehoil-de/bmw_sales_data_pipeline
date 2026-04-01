@@ -96,6 +96,7 @@ The data model is built around the following principles:
 
 - Preserves the raw table structure for downstream use
 - Filters rows based on current quality conditions before downstream table creation
+- Applies basic value correction and `NULL` handling for selected fields
 
 **Characteristics**
 
