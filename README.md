@@ -8,7 +8,7 @@ It focuses on how raw CSV data can be ingested, validated, and transformed into 
 The current version of the project emphasizes:
 
 - raw data ingestion with Python and Pandas
-- a separate clean table for filtering and preprocessing
+- a separate clean table for deduplication and light preprocessing
 - loading data into PostgreSQL
 - SQL-based transformation into aggregation and feature tables
 - documentation of grain, lineage, and table structure
@@ -67,7 +67,7 @@ Key design decisions:
 **Clean-layer preprocessing**
 
 - A separate clean table is used before aggregation and feature generation
-- The current clean step filters rows and applies basic value handling before downstream transformations
+- The current clean step removes duplicate rows and applies basic value handling before downstream transformations
 
 ---
 
@@ -93,7 +93,7 @@ Key design decisions:
 
 ## Limitations
 
-- The current clean layer is still a simple SQL-based filtering step and does not yet represent a full staging design
+- The current clean layer is still a simple SQL-based deduplication and preprocessing step and does not yet represent a full staging design
 - Feature tables are still closer to analytical summaries than fully developed ML feature sets
 
 ---

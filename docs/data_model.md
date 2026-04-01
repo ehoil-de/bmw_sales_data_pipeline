@@ -95,8 +95,8 @@ The data model is built around the following principles:
 **Current Cleaning Logic**
 
 - Preserves the raw table structure for downstream use
-- Filters rows based on current quality conditions before downstream table creation
-- Applies basic value correction and `NULL` handling for selected fields
+- Removes duplicate rows based on the clean-table grain
+- Applies basic `NULL` handling for selected invalid values
 
 **Characteristics**
 
@@ -252,16 +252,11 @@ The following rules define the expected data quality standard for the model.
 These checks are centered on the current raw table, clean table, and downstream derived tables.
 
 - The clean layer is expected to preserve one row per `(year, month, region, model)` after filtering
-- `units_sold >= 0`
-- `revenue_eur >= 0`
-- `bev_share BETWEEN 0 AND 1`
-- `premium_share BETWEEN 0 AND 100`
-- `month BETWEEN 1 AND 12`
-- `avg_price_eur >= 0`
+- Negative values in selected clean-table fields are currently converted to `NULL`
+- Stronger row-level filtering is applied in downstream aggregation and feature queries
 
 Additional validation:
 
-- `revenue_eur ≈ units_sold * avg_price_eur` (tolerance allowed)
 - Null values are not permitted in key dimensions
 
 ---
@@ -277,7 +272,7 @@ Additional validation:
 
 - A separate clean table is used before aggregation and feature generation
 - This creates a clearer transformation boundary between ingestion and downstream analysis
-- The current clean table also acts as the main filtering layer for downstream data quality
+- The current clean table focuses on deduplication and light preprocessing before stricter downstream filtering
 
 ### Separation of Feature Layer
 
