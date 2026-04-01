@@ -18,6 +18,12 @@ FROM (
         ROUND(fuel_price_index::NUMERIC(4,3), 1) AS fuel_price_index_low
     FROM bmw_sales_clean
 ) bsc
+WHERE
+    bsc.units_sold IS NOT NULL
+    AND bsc.premium_share IS NOT NULL
+    AND bsc.bev_share IS NOT NULL
+    AND bsc.revenue_eur IS NOT NULL
+    AND bsc.fuel_price_index_low IS NOT NULL
 GROUP BY region, fuel_price_index_low
 ORDER BY region, fuel_price_index_low;
 

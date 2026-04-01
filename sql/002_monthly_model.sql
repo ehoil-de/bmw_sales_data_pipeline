@@ -9,6 +9,10 @@ SELECT
     ROUND((SUM(units_sold*avg_price_eur) / NULLIF(SUM(units_sold),0))::NUMERIC,2) AS total_avg_price_eur,
     SUM(revenue_eur) AS total_revenue_eur
 FROM bmw_sales_clean
+WHERE
+    units_sold IS NOT NULL
+    AND avg_price_eur IS NOT NULL
+    AND revenue_eur IS NOT NULL
 GROUP BY year, month, model
 ORDER BY model, year, month;
 

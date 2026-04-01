@@ -9,6 +9,11 @@ SELECT
     SUM(units_sold) AS total_units_sold,
     SUM(revenue_eur) AS total_revenue_eur
 FROM bmw_sales_clean
+WHERE
+    units_sold IS NOT NULL
+    AND revenue_eur IS NOT NULL
+    AND premium_share IS NOT NULL
+    AND bev_share IS NOT NULL
 GROUP BY region, gdp_growth
 ORDER BY region, gdp_growth;
 
