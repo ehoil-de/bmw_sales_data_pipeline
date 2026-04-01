@@ -186,3 +186,52 @@ This incident highlighted an important principle in data engineering:
 - I still have not found a satisfying duplicate-handling strategy, so this part of the pipeline needs more work.
 
 ---
+
+## [2026-04-01] Clean tables needed their own duplicate-handling strategy
+
+### Trigger
+
+After introducing the clean table to preserve more source data in the raw layer, the earlier duplicate-prevention logic was removed.
+That created a new problem: if duplicate rows appeared, the clean-table creation step could fail before downstream processing even started.
+
+### Problem
+
+In the current structure, duplicate rows could cause an error when building the clean table.
+This meant I needed to rebuild a first line of defense against duplicates before the pipeline reached that step.
+
+At the same time, the existing `DROP` + `CREATE` pattern was not a good fit for handling duplicates in a controlled way.
+
+### Root Cause
+
+The root cause was that I was still relying too much on the earlier full-rebuild pattern.
+Because I learned `DROP` + `CREATE` first, I kept trying to solve the problem inside that structure even when it no longer matched the needs of the pipeline.
+
+Once the raw table was changed to preserve more source data, the clean layer needed its own way to handle duplicate rows more safely.
+
+### Fix
+
+I decided to create the clean table directly in the database and rebuild the loading logic around an UPSERT-style approach.
+Instead of recreating the clean table each time, the clean layer now has its own table structure and handles duplicate rows during insertion.
+
+The updated idea is:
+
+- keep `bmw_sales_raw` as the source-preserving table
+- prepare `bmw_sales_clean` in the database as a separate table
+- load cleaned rows into `bmw_sales_clean`
+- use duplicate-handling logic during insertion
+- let aggregation tables apply stricter row-level constraints for analytical use
+
+### Insight
+
+This incident highlighted an important principle in data engineering:
+
+- `DROP` + `CREATE` is simple, but it is not always the best structure for duplicate handling
+- As pipelines become more layered, each layer may need its own data-management strategy
+- UPSERT-style logic can be a better fit when a table must preserve structure while preventing duplicate inserts
+- Depending on the use case, `UPSERT` or `INSERT ... ON CONFLICT ...` can be more practical than full rebuilds
+
+### Improvement Point
+
+- While updating the tables, I noticed that even after deleting rows from the clean table, rows in the aggregation tables still remained. This needs to be solved because stale aggregated data could become risky when invalid rows are removed from upstream tables.
+
+---
