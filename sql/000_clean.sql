@@ -1,15 +1,31 @@
-DROP TABLE IF EXISTS bmw_sales_clean;
-
-CREATE TABLE bmw_sales_clean AS
-SELECT 
+INSERT INTO bmw_sales_clean (
     year,
     month,
     region,
     model,
     units_sold,
     avg_price_eur,
+    revenue_eur,
+    bev_share,
+    premium_share,
+    gdp_growth,
+    fuel_price_index
+    )
+SELECT
+    year,
+    month,
+    region,
+    model,
     CASE
-        WHEN bsr.revenue_eur<>units_sold*avg_price_eur THEN units_sold*avg_price_eur
+        WHEN bsr.units_sold<0 THEN NULL
+        ELSE bsr.units_sold
+    END AS units_sold,
+    CASE
+        WHEN bsr.avg_price_eur<0 THEN NULL
+        ELSE bsr.avg_price_eur
+    END AS avg_price_eur,
+    CASE
+        WHEN bsr.revenue_eur<0 THEN NULL
         ELSE bsr.revenue_eur
     END AS revenue_eur,
     CASE
@@ -26,12 +42,10 @@ SELECT
         ELSE bsr.fuel_price_index
     END AS fuel_price_index
 FROM bmw_sales_raw bsr
-WHERE 
+WHERE  
     year>2000 AND year<3000 AND year IS NOT NULL
     AND month>0 AND month<13 AND month IS NOT NULL
     AND region IS NOT NULL
     AND model IS NOT NULL
-    AND units_sold>=0 AND units_sold IS NOT NULL
-    AND avg_price_eur>=0 AND avg_price_eur IS NOT NULL;
-
-ALTER TABLE bmw_sales_clean ADD CONSTRAINT bsc_pk PRIMARY KEY (year, month, region, model);
+ON CONFLICT (year, month, region, model)
+DO NOTHING;
