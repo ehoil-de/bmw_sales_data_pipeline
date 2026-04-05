@@ -7,6 +7,7 @@
 - Grain is explicitly defined per table
 - The model is organized for analytics
 - Lineage is preferred over heavy FK usage in derived tables
+- Clean and downstream tables are currently rebuilt from upstream data on each pipeline run
 
 > **For full physical schema (columns, data types, constraints), refer to the ERD diagram created with dbdiagram.**
 
@@ -28,6 +29,12 @@ The data model is used to:
 The current pipeline follows this layered architecture:
 
 > Raw Layer → Clean Layer → Aggregation Layer / Feature Layer
+
+The current execution strategy is:
+
+- append new source data into `bmw_sales_raw`
+- rebuild `bmw_sales_clean` from the current raw table contents
+- rebuild aggregation and feature tables from `bmw_sales_clean`
 
 ---
 
@@ -67,7 +74,7 @@ The data model is built around the following principles:
 
 **Grain**
 
-- One row per `(year, month, region, model)`
+- Intended source business grain: one row per `(year, month, region, model)`
 
 **Characteristics**
 
@@ -95,8 +102,9 @@ The data model is built around the following principles:
 **Current Cleaning Logic**
 
 - Preserves the raw table structure for downstream use
-- Removes duplicate rows based on the clean-table grain
+- Prevents duplicate inserts at the clean-table grain
 - Applies basic `NULL` handling for selected invalid values
+- Refreshes the table contents on each pipeline run
 
 **Characteristics**
 
@@ -125,7 +133,7 @@ The tables below are derived from `bmw_sales_clean`.
 
 - `total_units_sold = SUM(units_sold)`
 - `total_revenue_eur = SUM(revenue_eur)`
-- `weighted_avg_price_eur = SUM(revenue_eur) / NULLIF(SUM(units_sold), 0)`
+- `total_avg_price_eur = SUM(units_sold * avg_price_eur) / NULLIF(SUM(units_sold), 0)`
 
 **Rationale**
 
@@ -149,7 +157,7 @@ The tables below are derived from `bmw_sales_clean`.
 **Transformation Logic**
 
 - Aggregation across regions per model
-- Weighted average pricing applied
+- `total_avg_price_eur = SUM(units_sold * avg_price_eur) / NULLIF(SUM(units_sold), 0)`
 
 **Rationale**
 
@@ -230,6 +238,7 @@ The current data model follows a one-directional transformation flow:
 - `bmw_sales_raw` is the current implemented source table
 - `bmw_sales_clean` is the current intermediate transformation table
 - Aggregation and feature tables are currently derived from the clean table
+- The clean and downstream layers are currently refreshed from upstream tables during each pipeline run
 
 ---
 
@@ -254,6 +263,7 @@ These checks are centered on the current raw table, clean table, and downstream 
 - The clean layer is expected to preserve one row per `(year, month, region, model)` after filtering
 - Negative values in selected clean-table fields are currently converted to `NULL`
 - Stronger row-level filtering is applied in downstream aggregation and feature queries
+- Clean and downstream tables are currently rebuilt from upstream data to reduce stale derived results
 
 Additional validation:
 
