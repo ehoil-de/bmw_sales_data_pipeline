@@ -235,3 +235,58 @@ This incident highlighted an important principle in data engineering:
 - While updating the tables, I noticed that even after deleting rows from the clean table, rows in the aggregation tables still remained. This needs to be solved because stale aggregated data could become risky when invalid rows are removed from upstream tables.
 
 ---
+
+## [2026-04-05] Upstream changes needed a full-refresh strategy to stay aligned downstream
+
+### Trigger
+
+While reviewing the current pipeline structure, I noticed that changes in upstream tables were not always reflected clearly in downstream aggregation and feature tables.
+
+This became more important after I had already separated the raw, clean, and derived layers.
+Even though the layered structure was clearer than before, I realized that structure alone was not enough to keep downstream results aligned with upstream changes.
+
+### Problem
+
+In the current structure, if upstream data changed, downstream tables could still keep results based on older data.
+This created a risk that aggregated or feature-level outputs would no longer match the latest clean-table state.
+
+That meant the pipeline could appear to run successfully while still leaving stale analytical results in downstream tables.
+
+### Root Cause
+
+The root cause was that I was thinking mainly about table structure, but not enough about refresh strategy.
+
+I had already improved the table design by separating raw, clean, and downstream layers.
+However, I had not fully aligned the execution strategy with the purpose of those layers.
+
+The clean table and downstream analytical tables are not meant to behave like permanent append-only storage.
+They are meant to represent the current transformed state of the upstream data.
+
+### Fix
+
+I changed the pipeline so that the clean and downstream tables now follow a full-refresh pattern while keeping their table structures in the database.
+
+Instead of recreating the tables themselves each time, the updated idea is:
+
+- keep `bmw_sales_raw` as the append-based source-preserving layer
+- truncate `bmw_sales_clean` and reload it from `bmw_sales_raw`
+- truncate downstream aggregation and feature tables and reload them from `bmw_sales_clean`
+- keep table definitions separate from refresh logic
+
+This keeps the schema stable while allowing the table contents to be rebuilt from the latest upstream state on each pipeline run.
+
+### Insight
+
+This incident highlighted an important principle in data engineering:
+
+- A layered table structure is not enough by itself
+- Each layer also needs a refresh strategy that matches its purpose
+- For analytical derived tables, stale data is often a refresh problem rather than a foreign-key problem
+- Keeping table structure and table refresh logic separate can make the pipeline easier to reason about
+
+### Improvement Point
+
+- The current clean-layer duplicate handling still depends on `INSERT ... ON CONFLICT DO NOTHING`, so a clearer deduplication rule may still be needed later.
+- Database initialization is now separated into project-managed SQL, but the pipeline execution flow can still be improved so setup and runtime behavior are more tightly connected.
+
+---
