@@ -1,3 +1,5 @@
+TRUNCATE TABLE bmw_sales_clean;
+
 INSERT INTO bmw_sales_clean (
     year,
     month,
@@ -10,7 +12,7 @@ INSERT INTO bmw_sales_clean (
     premium_share,
     gdp_growth,
     fuel_price_index
-    )
+)
 SELECT
     year,
     month,

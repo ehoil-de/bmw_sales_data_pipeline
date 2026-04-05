@@ -1,13 +1,20 @@
-DROP TABLE IF EXISTS sales_fuel_index_feature;
+TRUNCATE TABLE sales_fuel_index_feature;
 
-CREATE TABLE sales_fuel_index_feature AS
+INSERT INTO sales_fuel_index_feature (
+    region,
+    fuel_price_index_low,
+    total_premium_share,
+    total_bev_share,
+    total_units_sold,
+    total_revenue_eur
+)
 SELECT
     region,
     fuel_price_index_low,
-    ROUND((SUM(units_sold * premium_share) / NULLIF(SUM(units_sold),0))::NUMERIC, 2) AS total_premium_share,
-    ROUND((SUM(units_sold * bev_share) / NULLIF(SUM(units_sold),0))::NUMERIC, 3) AS total_bev_share,
-    SUM(units_sold) AS total_units_sold,
-    SUM(revenue_eur) AS total_revenue_eur
+    ROUND((SUM(units_sold * premium_share) / NULLIF(SUM(units_sold),0))::NUMERIC, 2),
+    ROUND((SUM(units_sold * bev_share) / NULLIF(SUM(units_sold),0))::NUMERIC, 3),
+    SUM(units_sold),
+    SUM(revenue_eur)
 FROM (
     SELECT
         region,
@@ -26,5 +33,3 @@ WHERE
     AND bsc.fuel_price_index_low IS NOT NULL
 GROUP BY region, fuel_price_index_low
 ORDER BY region, fuel_price_index_low;
-
-ALTER TABLE sales_fuel_index_feature ADD CONSTRAINT mfif_pk PRIMARY KEY (region, fuel_price_index_low);

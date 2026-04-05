@@ -1,13 +1,20 @@
-DROP TABLE IF EXISTS sales_gdp_feature;
+TRUNCATE TABLE sales_gdp_feature;
 
-CREATE TABLE sales_gdp_feature AS
+INSERT INTO sales_gdp_feature (
+    region,
+    gdp_growth,
+    total_premium_share,
+    total_bev_share,
+    total_units_sold,
+    total_revenue_eur
+)
 SELECT
     region,
     gdp_growth,
-    ROUND((SUM(units_sold*premium_share) / NULLIF(SUM(units_sold),0))::NUMERIC,2) AS total_premium_share,
-    ROUND((SUM(units_sold*bev_share) / NULLIF(SUM(units_sold), 0))::NUMERIC,3) AS total_bev_share,
-    SUM(units_sold) AS total_units_sold,
-    SUM(revenue_eur) AS total_revenue_eur
+    ROUND((SUM(units_sold*premium_share) / NULLIF(SUM(units_sold),0))::NUMERIC,2),
+    ROUND((SUM(units_sold*bev_share) / NULLIF(SUM(units_sold), 0))::NUMERIC,3),
+    SUM(units_sold),
+    SUM(revenue_eur)
 FROM bmw_sales_clean
 WHERE
     units_sold IS NOT NULL
@@ -16,5 +23,3 @@ WHERE
     AND bev_share IS NOT NULL
 GROUP BY region, gdp_growth
 ORDER BY region, gdp_growth;
-
-ALTER TABLE sales_gdp_feature ADD CONSTRAINT sgf_pk PRIMARY KEY (region, gdp_growth);
